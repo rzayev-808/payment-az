@@ -1,8 +1,8 @@
 Metadata-Version: 2.1
 Name: payment-az
-Version: 1.0.1
-Summary: Django nestpay odeme sistemine inteqraciya
-Home-page: https://github.com/CavidRzayev/nestpay_py
+Version: 1.0.3
+Summary: Django Azerbaycan getewaylari ucun modullar
+Home-page: https://github.com/CavidRzayev/payment-az
 Author: Cavid Rzayev
 Author-email: rzayev592@gmail.com
 License: UNKNOWN
