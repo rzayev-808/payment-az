@@ -4,7 +4,7 @@ import sys
 from shutil import rmtree
 import setuptools
 from setuptools import find_packages, setup, Command
-VERSION = '1.0.4'
+VERSION = '1.0.1'
 
 REQUIRED = [
     'requests','django','aiosmtplib'
@@ -67,7 +67,7 @@ class UploadCommand(Command):
 
 setup(
     name="payment-az", # Replace with your own username
-    version="1.0.4",
+    version="1.0.1",
     author="Cavid Rzayev",
     author_email="rzayev592@gmail.com",
     description="Django Azerbaycan getewaylari ucun modullar",
