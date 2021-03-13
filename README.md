@@ -1,4 +1,5 @@
 # odeme sistemleri ucun modul
+pip install payment-az
 
 Hazirda Azericard , NestPay, GoldenPay destekleyir
 
