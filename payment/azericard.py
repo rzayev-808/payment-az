@@ -1,5 +1,6 @@
 import hashlib
 import random
+from typing import Dict, Tuple
 
 import requests
 
@@ -24,52 +25,15 @@ class AzeriCard:
         else:
             raise OrderMissingException()
 
-    def bank_data(self, *args, **kwargs):
-        convert = self.__dict__
-        irand = random.randint(1, 10000000)
-        nonce = utils.substr(hashlib.md5(str(irand).encode("utf-8")).hexdigest(), 0, 16)
-        oper_time = utils.gmdate("%Y%m%d%H%I%S")
-        TIMESTAMP = oper_time
-        NONCE = nonce
-        MERCH_GMT = "+4"
-        to_sign = (
-            str(len(convert["AMOUNT"]))
-            + convert["AMOUNT"]
-            + str(len(convert["CURRENCY"]))
-            + convert["CURRENCY"]
-            + str(len(convert["ORDER"]))
-            + convert["ORDER"]
-            + str(len(convert["DESC"]))
-            + convert["DESC"]
-            + str(len(convert["MERCH_NAME"]))
-            + convert["MERCH_NAME"]
-            + str(len(convert["MERCH_URL"]))
-            + convert["MERCH_URL"]
-            + str(len(convert["TERMINAL"]))
-            + convert["TERMINAL"]
-            + str(len(convert["EMAIL"]))
-            + convert["EMAIL"]
-            + str(len(convert["TRTYPE"]))
-            + convert["TRTYPE"]
-            + str(len(convert["COUNTRY"]))
-            + convert["COUNTRY"]
-            + str(len(MERCH_GMT))
-            + MERCH_GMT
-            + str(len(oper_time))
-            + str(oper_time)
-            + str(len(nonce))
-            + str(nonce)
-            + str(len(convert["BACKREF"]))
-            + convert["BACKREF"]
-        )
-        res = utils.hex2bin(convert["key_for_sign"])
-        convert["p_sign"] = utils.hash_hmac("sha1", to_sign, res)
-        return self.send_data(**convert)
+    def bank_data(self):
+        data = self.__dict__
+        data["p_sign"] = self.generate_p_sign(data)
+        return self.send_data(**data)
 
     def send_data(self, *args, **kwargs):
         url = "https://mpi.3dsecure.az/cgi-bin/cgi_link"
-        r = requests.post(url, data=kwargs)
-        return r.text
+        response = requests.post(url, data=kwargs)
+        return response.text
 
     def callback(self, *args, **kwargs):
         convert = kwargs
@@ -167,3 +131,47 @@ class AzeriCard:
             return "Transaction declined;"
         if check == "3":
             return "Transaction processing fault."
+
+    def generate_to_sign(self, data: Dict[str, str]) -> str:
+        random_integer = random.randint(1, 10000000)
+        nonce = utils.substr(
+            hashlib.md5(str(random_integer).encode("utf-8")).hexdigest(), 0, 16
+        )
+        oper_time = utils.gmdate("%Y%m%d%H%I%S")
+        to_sign = (
+            str(len(data["AMOUNT"]))
+            + data["AMOUNT"]
+            + str(len(data["CURRENCY"]))
+            + data["CURRENCY"]
+            + str(len(data["ORDER"]))
+            + data["ORDER"]
+            + str(len(data["DESC"]))
+            + data["DESC"]
+            + str(len(data["MERCH_NAME"]))
+            + data["MERCH_NAME"]
+            + str(len(data["MERCH_URL"]))
+            + data["MERCH_URL"]
+            + str(len(data["TERMINAL"]))
+            + data["TERMINAL"]
+            + str(len(data["EMAIL"]))
+            + data["EMAIL"]
+            + str(len(data["TRTYPE"]))
+            + data["TRTYPE"]
+            + str(len(data["COUNTRY"]))
+            + data["COUNTRY"]
+            + str(len(self.MERCH_GMT))
+            + self.MERCH_GMT
+            + str(len(oper_time))
+            + str(oper_time)
+            + str(len(nonce))
+            + str(nonce)
+            + str(len(data["BACKREF"]))
+            + data["BACKREF"]
+        )
+
+        return to_sign
+
+    def generate_p_sign(self, data: Dict[str, str]) -> str:
+        to_sign: str = self.generate_to_sign(data)
+        binary_key: bytes = utils.hex2bin(data["key_for_sign"])
+        return utils.hash_hmac("sha1", to_sign, binary_key)
