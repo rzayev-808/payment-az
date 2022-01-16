@@ -7,26 +7,22 @@ from payment import utils
 from payment.invoice import Async
 
 
-class AzeriCardClass(type):
-    def __new__(cls, clsname, bases, attrs, **kwargs):
-        newclass = super().__new__(cls, clsname, bases, attrs, **kwargs)
-
-        if newclass.order is not None:
-            newclass.register()
-
-        return newclass
+class OrderMissingException(Exception):
+    def __init__(
+        self, message: str = 'ORDER attributunu qeyd etmək lazımdır. məs: "100001"'
+    ):
+        self.message = message
+        super().__init__(self.message)
 
 
-class AzeriCard(object, metaclass=AzeriCardClass):
+class AzeriCard:
     def __init__(self, *args, **kwargs):
-        self.__dict__.update(**kwargs)
-        super().__init__()
+        order = kwargs.get("ORDER", None)
 
-    order = None  # order id si mininim 6 reqem olmalidi misal : 100001 : Order id olmadan script run olmur
-
-    @classmethod
-    def register(cls):
-        cls.bank_data(cls)
+        if order is not None:
+            self.__dict__.update(**kwargs)
+        else:
+            raise OrderMissingException()
 
     def bank_data(self, *args, **kwargs):
         convert = self.__dict__
