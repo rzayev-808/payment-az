@@ -1,8 +1,8 @@
 import base64
 import datetime
 import hashlib
-import hmac
 import time
+from hmac import HMAC
 
 
 def microtime(get_as_float=False):
@@ -32,11 +32,11 @@ def substr(string, start, length=None):
         return string[start:length]
 
 
-def gmdate(str_formate, int_timestamp=None):
-    if int_timestamp == None:
-        return time.strftime(str_formate, time.gmtime())
-    else:
-        return time.strftime(str_formate, time.gmtime(int_timestamp))
+def gmdate(format: str, seconds: float = None) -> str:
+    if seconds is None:
+        return time.strftime(format, time.gmtime())
+
+    return time.strftime(format, time.gmtime(seconds))
 
 
 def hex2bin(hexdata):
@@ -65,6 +65,5 @@ def lowercase(obj):
         return obj
 
 
-def hash_hmac(algo, data, key):
-    res = hmac.new(key, data.encode(), algo).hexdigest()
-    return res
+def hash_hmac(algo: str, data: str, key: bytes) -> HMAC:
+    return HMAC(key=key, msg=data.encode(), digestmod=algo).hexdigest()
