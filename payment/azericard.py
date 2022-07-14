@@ -17,6 +17,8 @@ class OrderMissingException(Exception):
 
 
 class AzeriCard:
+    MERCH_GMT = "+4"
+
     def __init__(self, *args, **kwargs):
         order = kwargs.get("ORDER", None)
 
@@ -100,8 +102,10 @@ class AzeriCard:
         convert = kwargs
         convert["TRTYPE"] = "22"
         irand = random.randint(1, 10000000)
-        nonce = utils.substr(hashlib.md5(str(irand).encode("utf-8")).hexdigest(), 0, 16)
-        oper_time = utils.gmdate("%Y%m%d%H%I%S")
+        nonce: str = utils.substr(
+            hashlib.md5(str(irand).encode("utf-8")).hexdigest(), 0, 16
+        )
+        oper_time: str = utils.gmdate("%Y%m%d%H%I%S")
         to_sign = (
             str(len(convert["AMOUNT"]))
             + convert["AMOUNT"]
@@ -116,9 +120,9 @@ class AzeriCard:
             + str(len(convert["TERMINAL"]))
             + convert["TERMINAL"]
             + str(len(oper_time))
-            + str(oper_time)
+            + oper_time
             + str(len(nonce))
-            + str(nonce)
+            + nonce
         )
         res = utils.hex2bin(convert["key_for_sign"])
         convert["p_sign"] = utils.hash_hmac("sha1", to_sign, res)
@@ -134,10 +138,10 @@ class AzeriCard:
 
     def generate_to_sign(self, data: Dict[str, str]) -> str:
         random_integer = random.randint(1, 10000000)
-        nonce = utils.substr(
+        nonce: str = utils.substr(
             hashlib.md5(str(random_integer).encode("utf-8")).hexdigest(), 0, 16
         )
-        oper_time = utils.gmdate("%Y%m%d%H%I%S")
+        oper_time: str = utils.gmdate("%Y%m%d%H%I%S")
         to_sign = (
             str(len(data["AMOUNT"]))
             + data["AMOUNT"]
